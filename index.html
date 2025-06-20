@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AI Chat Bot</title>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+  <div class="chat-container">
+    <div class="ai-chat-box">
+      <img src="ai.png" alt="AI" width="50"/>
+      <div class="ai-chat-aera">
+        Hello! How can I help you today?
+      </div>
+    </div>
+  </div>
+
+  <div class="prompt-area">
+    <!-- ✅ ONE input for both message and URL -->
+    <input type="text" id="prompt" placeholder="Type message or paste URL..." />
+
+    <!-- Submit button -->
+    <button id="submit">
+      <img src="submit.svg" alt="Submit" />
+    </button>
+
+    <!-- Upload image button -->
+    <button id="image">
+      <img src="image-icon.svg" alt="Upload Image" />
+    </button>
+    <input type="file" id="image-input" accept="image/png, image/jpeg" hidden />
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
