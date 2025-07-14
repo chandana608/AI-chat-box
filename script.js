@@ -54,6 +54,37 @@ function createChatBox(html, className) {
     return div;
 }
 
+// --- Database Integration ---
+
+async function saveMessage(sender, message, image = "") {
+    await fetch("chat_api.php?action=save", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sender, message, image })
+    });
+}
+
+async function loadMessages() {
+    const res = await fetch("chat_api.php?action=load");
+    const messages = await res.json();
+    chatContainer.innerHTML = "";
+    messages.forEach(msg => {
+        let imageHtml = msg.image ? `<img src=\"data:image/*;base64,${msg.image}\" class=\"chooseimg\" alt=\"Uploaded Image\"/>` : "";
+        let html = `
+            <img src="${msg.sender === 'user' ? 'user.png' : 'ai.png'}" alt="${msg.sender}" width="50">
+            <div class="${msg.sender}-chat-area">
+                <p>${msg.message}</p>
+                ${imageHtml}
+            </div>`;
+        let box = createChatBox(html, `${msg.sender}-chat-box`);
+        chatContainer.appendChild(box);
+    });
+    chatContainer.scrollTo({ top: chatContainer.scrollHeight, behavior: "smooth" });
+}
+
+// Load messages on page load
+window.addEventListener("DOMContentLoaded", loadMessages);
+
 function handlechatResponse(inputValue) {
     const input = inputValue.trim();
 
@@ -89,6 +120,9 @@ function handlechatResponse(inputValue) {
     chatContainer.scrollTo({ top: chatContainer.scrollHeight, behavior: "smooth" });
 
     promptInput.value = "";
+
+    // Save user message to DB
+    saveMessage("user", user.message, user.file.data || "");
 
     setTimeout(() => {
         const aiLoadingHtml = `
@@ -131,6 +165,11 @@ async function generateResponse(aiChatBox) {
         aiTextContainer.innerHTML = aiText
             ? formatResponseToHtml(aiText.replace(/\*\*(.*?)\*\*/g, "$1").trim())
             : "⚠️ AI returned an empty or invalid response.";
+
+        // Save AI message to DB
+        if (aiText) {
+            await saveMessage("ai", aiText.replace(/\*\*(.*?)\*\*/g, "$1").trim());
+        }
     } catch (error) {
         console.error("Error:", error);
         aiTextContainer.textContent = "⚠️ An error occurred while getting the response.";
